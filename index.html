@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="sw">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mickster Vault - eFootball Store</title>
+    
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+
+    <style>
+        :root {
+            --bg: #05070a;
+            --card-bg: #10141d;
+            --neon-cyan: #00f2ff;
+            --whatsapp: #25d366;
+            --text-main: #e0e6ed;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg);
+            color: var(--text-main);
+            margin: 0;
+            padding: 20px;
+        }
+
+        header {
+            text-align: center;
+            padding: 30px 0;
+            border-bottom: 1px solid #1e293b;
+        }
+
+        header h1 {
+            color: var(--neon-cyan);
+            text-shadow: 0 0 10px rgba(0, 242, 255, 0.5);
+            letter-spacing: 3px;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 30px auto;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .card {
+            background: var(--card-bg);
+            border-radius: 15px;
+            overflow: hidden;
+            border: 1px solid #1e293b;
+            transition: 0.3s;
+        }
+
+        .card:hover {
+            border-color: var(--neon-cyan);
+            transform: scale(1.02);
+        }
+
+        .card img {
+            width: 100%;
+            height: auto; /* Imebadilishwa kutoka 200px */
+            display: block;
+            object-fit: contain; /* Imebadilishwa ili picha ionekane yote */
+            background-color: #000;
+        }
+
+        .card-content { padding: 15px; text-align: center; }
+
+        .squad-id { color: #64748b; font-size: 0.8rem; }
+        .price { font-size: 1.5rem; font-weight: 800; color: var(--neon-cyan); margin: 10px 0; }
+        .desc { font-size: 0.9rem; color: #94a3b8; margin-bottom: 20px; height: 40px; }
+
+        .btn-buy {
+            display: block;
+            background: var(--whatsapp);
+            color: white;
+            text-decoration: none;
+            padding: 12px;
+            border-radius: 8px;
+            font-weight: bold;
+        }
+
+        .sold-out {
+            display: block;
+            background: #ef4444;
+            color: white;
+            padding: 12px;
+            border-radius: 8px;
+            font-weight: bold;
+            opacity: 0.6;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>MICKSTER VAULT</h1>
+        <p>Uhakika na Usalama wa Account za eFootball, strength kuanzia 3170 na zaidi</p>
+    </header>
+
+    <div class="container" id="productDisplay">
+        <p style='text-align:center; width:100%'>Inapakia akaunti...</p>
+    </div>
+
+    <script>
+        // CONFIGURATION YA FIREBASE
+        const firebaseConfig = {
+            apiKey: "AIzaSyDiNjWTVcqZYsiHDWyxvU35qoAakwhFZKk",
+            authDomain: "mickster-vault.firebaseapp.com",
+            projectId: "mickster-vault",
+            storageBucket: "mickster-vault.appspot.com",
+            messagingSenderId: "36550346385",
+            appId: "1:36550346385:web:86f685c49615a9953258c7"
+        };
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+
+        // Kazi ya kupakia data kutoka Firebase Firestore
+        function loadProducts() {
+            const container = document.getElementById('productDisplay');
+            
+            db.collection("accounts").onSnapshot((querySnapshot) => {
+                container.innerHTML = "";
+                
+                if (querySnapshot.empty) {
+                    container.innerHTML = "<p style='text-align:center; width:100%'>Bado hakuna bidhaa zilizowekwa.</p>";
+                    return;
+                }
+
+                querySnapshot.forEach((doc) => {
+                    const p = doc.data();
+                    container.innerHTML += `
+                        <div class="card">
+                            <img src="${p.img}" style="${p.status === 'sold' ? 'filter: grayscale(1)' : ''}">
+                            <div class="card-content">
+                                <div class="squad-id">KIKOSI #${p.id}</div>
+                                <div class="price">TSH ${p.price}</div>
+                                <p class="desc">${p.desc}</p>
+                                ${p.status === 'available' 
+                                    ? `<a href="https://wa.me/${p.phone}?text=Habari Mickster, nahitaji kikosi namba ${p.id} Tsh ${p.price}" class="btn-buy">NUNUA SASA</a>`
+                                    : `<span class="sold-out">SOLD OUT</span>`
+                                }
+                            </div>
+                        </div>
+                    `;
+                });
+            });
+        }
+
+        window.onload = loadProducts;
+    </script>
+</body>
+</html>
