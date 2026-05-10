@@ -9,7 +9,7 @@
     <meta property="og:description" content="Uhakika na Usalama wa Account za eFootball, strength kuanzia 3170 na zaidi.">
     <meta property="og:url" content="https://mickster19.github.io/MicksterTz-Squads/">
     <meta property="og:type" content="website">
-    <meta property="og:image" content="https://mickster19.github.io/MicksterTz-Squads/img/preview.png">
+    <meta property="og:image" content="https://files.catbox.moe/ywn3tc.png">
     
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
@@ -66,9 +66,9 @@
 
         .card img {
             width: 100%;
-            height: auto; /* Imebadilishwa kutoka 200px */
+            height: auto; 
             display: block;
-            object-fit: contain; /* Imebadilishwa ili picha ionekane yote */
+            object-fit: contain; 
             background-color: #000;
         }
 
@@ -111,7 +111,6 @@
     </div>
 
     <script>
-        // CONFIGURATION YA FIREBASE
         const firebaseConfig = {
             apiKey: "AIzaSyDiNjWTVcqZYsiHDWyxvU35qoAakwhFZKk",
             authDomain: "mickster-vault.firebaseapp.com",
@@ -121,11 +120,9 @@
             appId: "1:36550346385:web:86f685c49615a9953258c7"
         };
 
-        // Initialize Firebase
         firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
 
-        // Kazi ya kupakia data kutoka Firebase Firestore
         function loadProducts() {
             const container = document.getElementById('productDisplay');
             
@@ -161,4 +158,3 @@
     </script>
 </body>
 </html>
-
