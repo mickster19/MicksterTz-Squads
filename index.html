@@ -1,113 +1,95 @@
 <!DOCTYPE html>
-<html lang="sw">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mickster Vault - eFootball Store</title>
-
-    <meta property="og:title" content="Mickster Vault - eFootball Store">
-    <meta property="og:description" content="Uhakika na Usalama wa Account za eFootball, strength kuanzia 3170 na zaidi.">
-    <meta property="og:url" content="https://mickster19.github.io/MicksterTz-Squads/">
-    <meta property="og:type" content="website">
-    <meta property="og:image" content="https://files.catbox.moe/ywn3tc.png">
+    <title>Mickster Vault | Pro</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Montserrat:wght@300;400;700&display=swap" rel="stylesheet">
     
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
 
     <style>
-        :root {
-            --bg: #05070a;
-            --card-bg: #10141d;
-            --neon-cyan: #00f2ff;
-            --whatsapp: #25d366;
-            --text-main: #e0e6ed;
+        :root { 
+            --primary-blue: #2563eb; --card-bg: #f8f9fa; --text-main: #1a1a1a; 
+            --border-color: #dee2e6; --whatsapp: #25d366; --sold: #ef4444;
         }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Montserrat', sans-serif; transition: 0.3s; }
+        body { background: #f0f2f5; padding-bottom: 90px; }
+        
+        header { position: fixed; top: 0; width: 100%; height: 70px; display: flex; align-items: center; justify-content: space-between; padding: 0 20px; background: #fff; z-index: 1000; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
+        .logo { font-size: 1.5rem; font-weight: 800; color: var(--text-main); }
+        .logo span { color: var(--primary-blue); }
 
-        body {
-            font-family: 'Inter', sans-serif;
-            background-color: var(--bg);
-            color: var(--text-main);
-            margin: 0;
-            padding: 20px;
-        }
+        .bottom-nav { position: fixed; bottom: 0; left: 0; width: 100%; height: 75px; background: #fff; display: flex; justify-content: space-around; align-items: center; border-top: 1px solid rgba(0,0,0,0.05); z-index: 1100; }
+        .nav-item { text-align: center; color: #a0a0a0; font-size: 0.65rem; font-weight: 700; flex: 1; cursor: pointer; }
+        .nav-item i { font-size: 1.3rem; margin-bottom: 4px; display: block; }
+        .nav-item.active { color: var(--primary-blue); }
 
-        header {
-            text-align: center;
-            padding: 30px 0;
-            border-bottom: 1px solid #1e293b;
-        }
+        .page-content { display: none; padding: 85px 4% 20px; min-height: 100vh; }
+        .active-page { display: block; animation: fadeIn 0.4s; }
 
-        header h1 {
-            color: var(--neon-cyan);
-            text-shadow: 0 0 10px rgba(0, 242, 255, 0.5);
-            letter-spacing: 3px;
-        }
+        /* SLIDER */
+        .slider-wrapper { width: 100%; height: 180px; border-radius: 12px; overflow: hidden; position: relative; margin-bottom: 20px; }
+        .slides { display: flex; height: 100%; transition: 1s ease-in-out; }
+        .slide { min-width: 100%; background-size: cover; background-position: center; }
 
-        .container {
-            max-width: 1000px;
-            margin: 30px auto;
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 20px;
-        }
+        .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 20px; }
+        .grid-full { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 15px; }
+        
+        .card { background: white; border-radius: 10px; overflow: hidden; border: 1px solid var(--border-color); position: relative; text-align: center; }
+        .card img { width: 100%; height: 85px; object-fit: cover; background: #000; }
+        .card b { font-size: 0.6rem; display: block; padding: 5px; color: var(--text-main); }
 
-        .card {
-            background: var(--card-bg);
-            border-radius: 15px;
-            overflow: hidden;
-            border: 1px solid #1e293b;
-            transition: 0.3s;
-        }
+        .acc-card { background: white; border-radius: 15px; overflow: hidden; border: 1px solid var(--border-color); }
+        .acc-card img { width: 100%; height: auto; object-fit: contain; background: #000; }
+        .acc-content { padding: 12px; text-align: center; }
+        .acc-price { font-size: 1.2rem; font-weight: 800; color: var(--primary-blue); margin: 5px 0; }
+        
+        .btn-buy { display: block; background: var(--whatsapp); color: white; text-decoration: none; padding: 8px; border-radius: 6px; font-weight: bold; font-size: 0.8rem; }
+        .section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; border-left: 4px solid var(--primary-blue); padding-left: 10px; }
 
-        .card:hover {
-            border-color: var(--neon-cyan);
-            transform: scale(1.02);
-        }
-
-        .card img {
-            width: 100%;
-            height: auto; 
-            display: block;
-            object-fit: contain; 
-            background-color: #000;
-        }
-
-        .card-content { padding: 15px; text-align: center; }
-
-        .squad-id { color: #64748b; font-size: 0.8rem; }
-        .price { font-size: 1.5rem; font-weight: 800; color: var(--neon-cyan); margin: 10px 0; }
-        .desc { font-size: 0.9rem; color: #94a3b8; margin-bottom: 20px; height: 40px; }
-
-        .btn-buy {
-            display: block;
-            background: var(--whatsapp);
-            color: white;
-            text-decoration: none;
-            padding: 12px;
-            border-radius: 8px;
-            font-weight: bold;
-        }
-
-        .sold-out {
-            display: block;
-            background: #ef4444;
-            color: white;
-            padding: 12px;
-            border-radius: 8px;
-            font-weight: bold;
-            opacity: 0.6;
-        }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
     </style>
 </head>
 <body>
 
     <header>
-        <h1>MICKSTER VAULT</h1>
-        <p>Uhakika na Usalama wa Account za eFootball, strength kuanzia 3170 na zaidi</p>
+        <div class="logo"><span>Mickster</span> Vault</div>
+        <i class="fa-solid fa-magnifying-glass"></i>
     </header>
 
-    <div class="container" id="productDisplay">
-        <p style='text-align:center; width:100%'>Inapakia akaunti...</p>
+    <nav class="bottom-nav">
+        <div class="nav-item active" onclick="showPage('home-page', this)"><i class="fa-solid fa-house"></i>HOME</div>
+        <div class="nav-item" onclick="showPage('squad-page', this)"><i class="fa-solid fa-users-viewfinder"></i>SQUADS</div>
+        <div class="nav-item" onclick="showPage('game-page', this)"><i class="fa-solid fa-gamepad"></i>GAMES</div>
+    </nav>
+
+    <div id="main-app">
+        <!-- HOME PAGE -->
+        <div id="home-page" class="page-content active-page">
+            <div class="slider-wrapper"><div class="slides" id="mainSlider"></div></div>
+            
+            <div class="section-header"><h3>TOP SQUADS</h3><span onclick="showPage('squad-page')" style="font-size:0.7rem; color:var(--primary-blue);">VIEW ALL</span></div>
+            <div id="home-squad-grid" class="grid-3"></div>
+
+            <div class="section-header"><h3>NEW GAMES</h3><span onclick="showPage('game-page')" style="font-size:0.7rem; color:var(--primary-blue);">VIEW ALL</span></div>
+            <div id="home-game-grid" class="grid-3"></div>
+        </div>
+
+        <!-- SQUAD PAGE -->
+        <div id="squad-page" class="page-content">
+            <h2 style="margin-bottom:20px; font-family:'Bebas Neue'; color:var(--primary-blue);">eFOOTBALL SQUADS</h2>
+            <div id="full-squad-grid" class="grid-full"></div>
+        </div>
+
+        <!-- GAME PAGE -->
+        <div id="game-page" class="page-content">
+            <h2 style="margin-bottom:20px; font-family:'Bebas Neue';">ANDROID GAMES</h2>
+            <div id="full-game-grid" class="grid-full"></div>
+        </div>
     </div>
 
     <script>
@@ -117,44 +99,78 @@
             projectId: "mickster-vault",
             storageBucket: "mickster-vault.appspot.com",
             messagingSenderId: "36550346385",
-            appId: "1:36550346385:web:86f685c49615a9953258c7"
+            appId: "1:36550346385:web:86f685c49615a9953258c7",
+            databaseURL: "https://mickster-vault-default-rtdb.firebaseio.com"
         };
 
         firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
+        const rtdb = firebase.database();
 
-        function loadProducts() {
-            const container = document.getElementById('productDisplay');
-            
-            db.collection("accounts").onSnapshot((querySnapshot) => {
-                container.innerHTML = "";
+        // AUTO SLIDER LOGIC
+        function initSlider() {
+            rtdb.ref('slider/').on('value', s => {
+                const imgs = s.val() || ["https://via.placeholder.com/800x400"];
+                const slider = document.getElementById('mainSlider');
+                slider.innerHTML = imgs.map(url => `<div class="slide" style="background-image:url('${url}')"></div>`).join('');
+                let cur = 0;
+                setInterval(() => {
+                    cur = (cur + 1) % imgs.length;
+                    slider.style.transform = `translateX(-${cur * 100}%)`;
+                }, 4000);
+            });
+        }
+
+        // LOAD DATA
+        function loadContent() {
+            // Load Squads from Firestore
+            db.collection("accounts").onSnapshot(snap => {
+                const fullSquad = document.getElementById('full-squad-grid');
+                const homeSquad = document.getElementById('home-squad-grid');
+                fullSquad.innerHTML = ""; homeSquad.innerHTML = "";
                 
-                if (querySnapshot.empty) {
-                    container.innerHTML = "<p style='text-align:center; width:100%'>Bado hakuna bidhaa zilizowekwa.</p>";
-                    return;
-                }
-
-                querySnapshot.forEach((doc) => {
+                snap.forEach((doc, index) => {
                     const p = doc.data();
-                    container.innerHTML += `
-                        <div class="card">
-                            <img src="${p.img}" style="${p.status === 'sold' ? 'filter: grayscale(1)' : ''}">
-                            <div class="card-content">
-                                <div class="squad-id">KIKOSI #${p.id}</div>
-                                <div class="price">TSH ${p.price}</div>
-                                <p class="desc">${p.desc}</p>
-                                ${p.status === 'available' 
-                                    ? `<a href="https://wa.me/${p.phone}?text=Habari Mickster, nahitaji kikosi namba ${p.id} Tsh ${p.price}" class="btn-buy">NUNUA SASA</a>`
-                                    : `<span class="sold-out">SOLD OUT</span>`
-                                }
+                    const card = `
+                        <div class="acc-card">
+                            <img src="${p.img}" style="${p.status === 'sold' ? 'filter:grayscale(1)' : ''}">
+                            <div class="acc-content">
+                                <div style="font-size:0.7rem; color:gray;">ID #${p.id}</div>
+                                <div class="acc-price">TSH ${p.price}</div>
+                                <a href="https://wa.me/${p.phone}?text=Nahitaji Kikosi #${p.id}" class="btn-buy">NUNUA SASA</a>
                             </div>
-                        </div>
-                    `;
+                        </div>`;
+                    fullSquad.innerHTML += card;
+                    if(index < 3) homeSquad.innerHTML += `<div class="card"><img src="${p.img}"><b>ID #${p.id}</b></div>`;
+                });
+            });
+
+            // Load Games from Realtime DB
+            rtdb.ref('games/').on('value', snap => {
+                const fullGame = document.getElementById('full-game-grid');
+                const homeGame = document.getElementById('home-game-grid');
+                fullGame.innerHTML = ""; homeGame.innerHTML = "";
+                let count = 0;
+                snap.forEach(child => {
+                    const g = child.val();
+                    const card = `<div class="card" onclick="window.open('${g.link || g.apk}')"><img src="${g.icon}"><b>${g.name}</b></div>`;
+                    fullGame.innerHTML += card;
+                    if(count < 3) { homeGame.innerHTML += card; count++; }
                 });
             });
         }
 
-        window.onload = loadProducts;
+        function showPage(id, el) {
+            document.querySelectorAll('.page-content').forEach(p => p.classList.remove('active-page'));
+            document.getElementById(id).classList.add('active-page');
+            if(el) {
+                document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+                el.classList.add('active');
+            }
+            window.scrollTo(0,0);
+        }
+
+        window.onload = () => { initSlider(); loadContent(); };
     </script>
 </body>
 </html>
