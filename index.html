@@ -31,7 +31,6 @@
         .page-content { display: none; padding: 85px 4% 20px; min-height: 100vh; }
         .active-page { display: block; animation: fadeIn 0.4s; }
 
-        /* SLIDER */
         .slider-wrapper { width: 100%; height: 180px; border-radius: 12px; overflow: hidden; position: relative; margin-bottom: 20px; }
         .slides { display: flex; height: 100%; transition: 1s ease-in-out; }
         .slide { min-width: 100%; background-size: cover; background-position: center; }
@@ -68,24 +67,19 @@
     </nav>
 
     <div id="main-app">
-        <!-- HOME PAGE -->
         <div id="home-page" class="page-content active-page">
             <div class="slider-wrapper"><div class="slides" id="mainSlider"></div></div>
-            
             <div class="section-header"><h3>TOP SQUADS</h3><span onclick="showPage('squad-page')" style="font-size:0.7rem; color:var(--primary-blue);">VIEW ALL</span></div>
             <div id="home-squad-grid" class="grid-3"></div>
-
             <div class="section-header"><h3>NEW GAMES</h3><span onclick="showPage('game-page')" style="font-size:0.7rem; color:var(--primary-blue);">VIEW ALL</span></div>
             <div id="home-game-grid" class="grid-3"></div>
         </div>
 
-        <!-- SQUAD PAGE -->
         <div id="squad-page" class="page-content">
             <h2 style="margin-bottom:20px; font-family:'Bebas Neue'; color:var(--primary-blue);">eFOOTBALL SQUADS</h2>
             <div id="full-squad-grid" class="grid-full"></div>
         </div>
 
-        <!-- GAME PAGE -->
         <div id="game-page" class="page-content">
             <h2 style="margin-bottom:20px; font-family:'Bebas Neue';">ANDROID GAMES</h2>
             <div id="full-game-grid" class="grid-full"></div>
@@ -107,7 +101,6 @@
         const db = firebase.firestore();
         const rtdb = firebase.database();
 
-        // AUTO SLIDER LOGIC
         function initSlider() {
             rtdb.ref('slider/').on('value', s => {
                 const imgs = s.val() || ["https://via.placeholder.com/800x400"];
@@ -121,18 +114,14 @@
             });
         }
 
-        // LOAD DATA
         function loadContent() {
-            // Load Squads from Firestore
             db.collection("accounts").onSnapshot(snap => {
                 const fullSquad = document.getElementById('full-squad-grid');
                 const homeSquad = document.getElementById('home-squad-grid');
                 fullSquad.innerHTML = ""; homeSquad.innerHTML = "";
-                
                 snap.forEach((doc, index) => {
                     const p = doc.data();
-                    const card = `
-                        <div class="acc-card">
+                    const card = `<div class="acc-card">
                             <img src="${p.img}" style="${p.status === 'sold' ? 'filter:grayscale(1)' : ''}">
                             <div class="acc-content">
                                 <div style="font-size:0.7rem; color:gray;">ID #${p.id}</div>
@@ -145,7 +134,6 @@
                 });
             });
 
-            // Load Games from Realtime DB
             rtdb.ref('games/').on('value', snap => {
                 const fullGame = document.getElementById('full-game-grid');
                 const homeGame = document.getElementById('home-game-grid');
