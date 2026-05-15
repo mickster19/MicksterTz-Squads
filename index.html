@@ -138,11 +138,14 @@
             rtdb.ref('slider/').on('value', s => {
                 const imgs = s.val() || ["https://via.placeholder.com/800x400"];
                 const slider = document.getElementById('mainSlider');
-                slider.innerHTML = imgs.map(url => `<div class="slide" style="background-image:url('${url}')"></div>`).join('');
+                slider.innerHTML = Object.values(imgs).map(url => `<div class="slide" style="background-image:url('${url}')"></div>`).join('');
                 let cur = 0;
                 setInterval(() => {
-                    cur = (cur + 1) % imgs.length;
-                    slider.style.transform = `translateX(-${cur * 100}%)`;
+                    const slidesCount = Object.keys(imgs).length;
+                    if(slidesCount > 1) {
+                        cur = (cur + 1) % slidesCount;
+                        slider.style.transform = `translateX(-${cur * 100}%)`;
+                    }
                 }, 4000);
             });
         }
@@ -195,7 +198,6 @@
             } else {
                 price.innerText = "TSH " + data.price;
                 action.innerText = "NUNUA SASA";
-                // Ujumbe mpya hapa
                 action.href = `https://wa.me/${data.phone}?text=Nahitaji kikosi no ${data.id} Tsh ${data.price}`;
                 action.style.background = "var(--whatsapp)";
             }
@@ -229,7 +231,13 @@
             });
 
             rtdb.ref('games/').on('value', snap => {
-                const grids = { pc: document.getElementById('grid-pc'), simu: document.getElementById('grid-simu'), bus43: document.getElementById('grid-bus-v43'), map: document.getElementById('grid-map-maleo'), ets2: document.getElementById('grid-bus-ets2') };
+                const grids = { 
+                    pc: document.getElementById('grid-pc'), 
+                    simu: document.getElementById('grid-simu'), 
+                    bus43: document.getElementById('grid-bus-v43'), 
+                    map: document.getElementById('grid-map-maleo'), 
+                    ets2: document.getElementById('grid-bus-ets2') 
+                };
                 Object.values(grids).forEach(g => { if(g) g.innerHTML = ""; });
                 const homeGame = document.getElementById('home-game-grid');
                 homeGame.innerHTML = "";
@@ -241,11 +249,13 @@
                     
                     if(homeCount < 3) { homeGame.innerHTML += cardHtml; homeCount++; }
                     
-                    let name = g.name.toLowerCase();
-                    if(name.includes('pc')) grids.pc.innerHTML += cardHtml;
-                    else if(name.includes('maleo') || name.includes('map')) grids.map.innerHTML += cardHtml;
-                    else if(name.includes('ets2')) grids.ets2.innerHTML += cardHtml;
-                    else if(name.includes('4.3') || name.includes('multiplayer')) grids.bus43.innerHTML += cardHtml;
+                    // Logic mpya inayotumia g.category
+                    const cat = g.category;
+                    if(cat === "PC") grids.pc.innerHTML += cardHtml;
+                    else if(cat === "Simu") grids.simu.innerHTML += cardHtml;
+                    else if(cat === "Bus Mods") grids.bus43.innerHTML += cardHtml;
+                    else if(cat === "Ramani Maleo") grids.map.innerHTML += cardHtml;
+                    else if(cat === "ETS2") grids.ets2.innerHTML += cardHtml;
                     else grids.simu.innerHTML += cardHtml;
                 });
             });
