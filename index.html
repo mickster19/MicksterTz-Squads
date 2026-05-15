@@ -14,7 +14,7 @@
     <style>
         :root { 
             --primary-blue: #2563eb; --card-bg: #f8f9fa; --text-main: #1a1a1a; 
-            --border-color: #dee2e6; --whatsapp: #25d366; --sold: #ef4444;
+            --border-color: #dee2e6; --whatsapp: #25d366; --sold: #ef4444; --gray-sold: #94a3b8;
         }
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Montserrat', sans-serif; transition: 0.3s; }
         body { background: #f0f2f5; padding-bottom: 90px; }
@@ -35,6 +35,8 @@
         .slides { display: flex; height: 100%; transition: 1s ease-in-out; }
         .slide { min-width: 100%; background-size: cover; background-position: center; }
 
+        .sold-tag { position: absolute; top: 10px; right: 10px; background: var(--sold); color: white; padding: 4px 10px; border-radius: 5px; font-size: 0.6rem; font-weight: 800; z-index: 5; }
+
         .card { background: white; border-radius: 10px; overflow: hidden; border: 1px solid var(--border-color); position: relative; text-align: center; cursor: pointer; }
         .card-slider-container { width: 100%; height: 90px; overflow: hidden; position: relative; background: #000; }
         .card-slides { display: flex; height: 100%; transition: 0.5s ease-in-out; }
@@ -46,7 +48,7 @@
         
         .card b { font-size: 0.65rem; display: block; padding: 8px 5px; color: var(--text-main); line-height: 1.2; height: 35px; overflow: hidden; }
 
-        .acc-card { background: white; border-radius: 15px; overflow: hidden; border: 1px solid var(--border-color); cursor: pointer; }
+        .acc-card { background: white; border-radius: 15px; overflow: hidden; border: 1px solid var(--border-color); cursor: pointer; position: relative; }
         .acc-card img { width: 100%; height: auto; object-fit: contain; background: #000; }
         .acc-content { padding: 12px; text-align: center; }
         .acc-price { font-size: 1.2rem; font-weight: 800; color: var(--primary-blue); margin: 5px 0; }
@@ -86,7 +88,7 @@
             <img id="m-img" src="">
             <h2 id="m-title">Title</h2>
             <div id="m-price" style="color:var(--primary-blue); font-weight:800; font-size:1.2rem; margin-bottom:10px;"></div>
-            <p id="m-desc">Maelezo mafupi kuhusu item hii yatatokea hapa kwa ufupi kabisa.</p>
+            <p id="m-desc">Maelezo mafupi kuhusu item hii yatatokea hapa.</p>
             <a id="m-action" href="" class="modal-btn">ACTION</a>
         </div>
     </div>
@@ -151,34 +153,6 @@
             });
         }
 
-        function createGameCard(g) {
-            const iconList = g.icon.split(',');
-            let slidesHtml = iconList.map(img => `<img src="${img.trim()}">`).join('');
-            
-            return `<div class="card" onclick='openMiniPage("game", ${JSON.stringify(g)})'>
-                        <div class="card-slider-container">
-                            <div class="card-slides" data-count="${iconList.length}" data-current="0">
-                                ${slidesHtml}
-                            </div>
-                        </div>
-                        <b>${g.name}</b>
-                    </div>`;
-        }
-
-        function startCardSliders() {
-            setInterval(() => {
-                document.querySelectorAll('.card-slides').forEach(slider => {
-                    const count = parseInt(slider.getAttribute('data-count'));
-                    if (count > 1) {
-                        let current = parseInt(slider.getAttribute('data-current'));
-                        current = (current + 1) % count;
-                        slider.style.transform = `translateX(-${current * 100}%)`;
-                        slider.setAttribute('data-current', current);
-                    }
-                });
-            }, 3000);
-        }
-
         function openMiniPage(type, data) {
             const modal = document.getElementById('details-modal');
             const img = document.getElementById('m-img');
@@ -192,15 +166,24 @@
             desc.innerText = data.desc || "Maelezo hayajapatikana kwa sasa.";
             
             if(type === 'game') {
-                price.innerText = ""; // Ondoa Free Download hapa
+                price.innerText = "";
                 action.innerText = "DOWNLOAD NOW";
                 action.href = data.link || data.apk;
                 action.style.background = "var(--primary-blue)";
+                action.style.pointerEvents = "auto";
             } else {
                 price.innerText = "TSH " + data.price;
-                action.innerText = "NUNUA SASA";
-                action.href = `https://wa.me/${data.phone}?text=Nahitaji kikosi no ${data.id} Tsh ${data.price}`;
-                action.style.background = "var(--whatsapp)";
+                if(data.status === 'sold out') {
+                    action.innerText = "SOLD OUT";
+                    action.href = "#";
+                    action.style.background = "var(--gray-sold)";
+                    action.style.pointerEvents = "none";
+                } else {
+                    action.innerText = "NUNUA SASA";
+                    action.href = `https://wa.me/${data.phone}?text=Nahitaji kikosi no ${data.id} Tsh ${data.price}`;
+                    action.style.background = "var(--whatsapp)";
+                    action.style.pointerEvents = "auto";
+                }
             }
             modal.style.display = 'flex';
         }
@@ -208,29 +191,44 @@
         function closeModal(e) { document.getElementById('details-modal').style.display = 'none'; }
 
         function loadContent() {
+            // SQUADS LOADER
             db.collection("accounts").onSnapshot(snap => {
                 const fullSquad = document.getElementById('full-squad-grid');
                 const homeSquad = document.getElementById('home-squad-grid');
                 fullSquad.innerHTML = ""; homeSquad.innerHTML = "";
                 let count = 0;
+
                 snap.forEach((doc) => {
                     const p = doc.data();
-                    const cardHtml = `<div class="acc-card" onclick='openMiniPage("squad", ${JSON.stringify(p)})'>
-                            <img src="${p.img}">
-                            <div class="acc-content">
-                                <div style="font-size:0.7rem; color:gray;">ID #${p.id}</div>
-                                <div class="acc-price">TSH ${p.price}</div>
-                                <div class="view-all-btn" style="background:var(--whatsapp); color:white; border-radius:5px;">ANGALIA</div>
-                            </div>
-                        </div>`;
-                    fullSquad.innerHTML += cardHtml;
+                    const isSold = p.status === 'sold out';
+                    const soldBadge = isSold ? `<div class="sold-tag">SOLD OUT</div>` : '';
+                    
+                    const div = document.createElement('div');
+                    div.className = 'acc-card';
+                    div.innerHTML = `
+                        ${soldBadge}
+                        <img src="${p.img}">
+                        <div class="acc-content">
+                            <div style="font-size:0.7rem; color:gray;">ID #${p.id}</div>
+                            <div class="acc-price" style="${isSold ? 'color:var(--gray-sold)' : ''}">TSH ${p.price}</div>
+                            <div class="view-all-btn" style="background:${isSold ? 'var(--gray-sold)' : 'var(--whatsapp)'}; color:white; border-radius:5px;">ANGALIA</div>
+                        </div>
+                    `;
+                    div.onclick = () => openMiniPage("squad", p);
+                    fullSquad.appendChild(div);
+
                     if(count < 3) {
-                        homeSquad.innerHTML += `<div class="card" onclick='openMiniPage("squad", ${JSON.stringify(p)})'><img src="${p.img}" style="height:90px; object-fit:cover;"><b>ID #${p.id}</b></div>`;
+                        const homeDiv = document.createElement('div');
+                        homeDiv.className = 'card';
+                        homeDiv.innerHTML = `${soldBadge}<img src="${p.img}" style="height:90px; object-fit:cover;"><b>ID #${p.id}</b>`;
+                        homeDiv.onclick = () => openMiniPage("squad", p);
+                        homeSquad.appendChild(homeDiv);
                         count++;
                     }
                 });
             });
 
+            // GAMES LOADER
             rtdb.ref('games/').on('value', snap => {
                 const grids = { 
                     pc: document.getElementById('grid-pc'), 
@@ -246,19 +244,57 @@
                 
                 snap.forEach(child => {
                     const g = child.val();
-                    const cardHtml = createGameCard(g);
+                    const iconList = g.icon.split(',');
+                    let slidesHtml = iconList.map(img => `<img src="${img.trim()}">`).join('');
                     
-                    if(homeCount < 3) { homeGame.innerHTML += cardHtml; homeCount++; }
+                    const gameDiv = document.createElement('div');
+                    gameDiv.className = 'card';
+                    gameDiv.innerHTML = `
+                        <div class="card-slider-container">
+                            <div class="card-slides" data-count="${iconList.length}" data-current="0">
+                                ${slidesHtml}
+                            </div>
+                        </div>
+                        <b>${g.name}</b>
+                    `;
+                    gameDiv.onclick = () => openMiniPage("game", g);
+
+                    if(homeCount < 3) { 
+                        const cloneHome = gameDiv.cloneNode(true);
+                        cloneHome.onclick = () => openMiniPage("game", g);
+                        homeGame.appendChild(cloneHome); 
+                        homeCount++; 
+                    }
                     
                     const cat = g.category;
-                    if(cat === "PC") grids.pc.innerHTML += cardHtml;
-                    else if(cat === "Simu") grids.simu.innerHTML += cardHtml;
-                    else if(cat === "Bus Mods") grids.bus43.innerHTML += cardHtml;
-                    else if(cat === "Ramani Maleo") grids.map.innerHTML += cardHtml;
-                    else if(cat === "ETS2") grids.ets2.innerHTML += cardHtml;
-                    else grids.simu.innerHTML += cardHtml;
+                    let target;
+                    if(cat === "PC") target = grids.pc;
+                    else if(cat === "Simu") target = grids.simu;
+                    else if(cat === "Bus Mods") target = grids.bus43;
+                    else if(cat === "Ramani Maleo") target = grids.map;
+                    else if(cat === "ETS2") target = grids.ets2;
+
+                    if(target) {
+                        const cloneGrid = gameDiv.cloneNode(true);
+                        cloneGrid.onclick = () => openMiniPage("game", g);
+                        target.appendChild(cloneGrid);
+                    }
                 });
             });
+        }
+
+        function startCardSliders() {
+            setInterval(() => {
+                document.querySelectorAll('.card-slides').forEach(slider => {
+                    const count = parseInt(slider.getAttribute('data-count'));
+                    if (count > 1) {
+                        let current = parseInt(slider.getAttribute('data-current'));
+                        current = (current + 1) % count;
+                        slider.style.transform = `translateX(-${current * 100}%)`;
+                        slider.setAttribute('data-current', current);
+                    }
+                });
+            }, 3000);
         }
 
         function showPage(id, el) {
@@ -279,3 +315,4 @@
     </script>
 </body>
 </html>
+
