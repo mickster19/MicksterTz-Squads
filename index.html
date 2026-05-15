@@ -35,21 +35,35 @@
         .slides { display: flex; height: 100%; transition: 1s ease-in-out; }
         .slide { min-width: 100%; background-size: cover; background-position: center; }
 
+        .card { background: white; border-radius: 10px; overflow: hidden; border: 1px solid var(--border-color); position: relative; text-align: center; cursor: pointer; }
+        .card-slider-container { width: 100%; height: 90px; overflow: hidden; position: relative; background: #000; }
+        .card-slides { display: flex; height: 100%; transition: 0.5s ease-in-out; }
+        .card-slides img { min-width: 100%; height: 100%; object-fit: cover; }
+        
         .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 20px; }
         .grid-full { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 15px; }
+        .grid-custom { display: grid; grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); gap: 10px; margin-bottom: 30px; }
         
-        .card { background: white; border-radius: 10px; overflow: hidden; border: 1px solid var(--border-color); position: relative; text-align: center; }
-        .card img { width: 100%; height: 85px; object-fit: cover; background: #000; }
-        .card b { font-size: 0.6rem; display: block; padding: 5px; color: var(--text-main); }
+        .card b { font-size: 0.65rem; display: block; padding: 8px 5px; color: var(--text-main); line-height: 1.2; height: 35px; overflow: hidden; }
 
-        .acc-card { background: white; border-radius: 15px; overflow: hidden; border: 1px solid var(--border-color); }
+        .acc-card { background: white; border-radius: 15px; overflow: hidden; border: 1px solid var(--border-color); cursor: pointer; }
         .acc-card img { width: 100%; height: auto; object-fit: contain; background: #000; }
         .acc-content { padding: 12px; text-align: center; }
         .acc-price { font-size: 1.2rem; font-weight: 800; color: var(--primary-blue); margin: 5px 0; }
         
-        .btn-buy { display: block; background: var(--whatsapp); color: white; text-decoration: none; padding: 8px; border-radius: 6px; font-weight: bold; font-size: 0.8rem; }
-        .section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; border-left: 4px solid var(--primary-blue); padding-left: 10px; }
+        .section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+        .section-header h3 { font-size: 1.1rem; color: #0f172a; font-weight: 800; }
+        .view-all-btn { background: #e2e8f0; color: #475569; padding: 4px 12px; border-radius: 15px; font-size: 0.7rem; font-weight: 700; cursor: pointer; }
 
+        #details-modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 2000; justify-content: center; align-items: flex-end; }
+        .modal-box { background: white; width: 100%; max-width: 500px; border-radius: 25px 25px 0 0; padding: 25px; animation: slideUp 0.4s; position: relative; }
+        .modal-box img { width: 100%; border-radius: 15px; margin-bottom: 15px; max-height: 250px; object-fit: cover; }
+        .modal-box h2 { font-size: 1.4rem; color: var(--text-main); margin-bottom: 5px; }
+        .modal-box p { color: #64748b; font-size: 0.9rem; margin-bottom: 20px; line-height: 1.5; }
+        .modal-btn { display: block; text-align: center; padding: 15px; border-radius: 12px; font-weight: 800; text-decoration: none; font-size: 1rem; }
+        .close-modal { position: absolute; top: 15px; right: 20px; font-size: 1.5rem; color: #94a3b8; }
+
+        @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
     </style>
 </head>
@@ -66,12 +80,23 @@
         <div class="nav-item" onclick="showPage('game-page', this)"><i class="fa-solid fa-gamepad"></i>GAMES</div>
     </nav>
 
+    <div id="details-modal" onclick="closeModal(event)">
+        <div class="modal-box" onclick="event.stopPropagation()">
+            <span class="close-modal" onclick="document.getElementById('details-modal').style.display='none'">&times;</span>
+            <img id="m-img" src="">
+            <h2 id="m-title">Title</h2>
+            <div id="m-price" style="color:var(--primary-blue); font-weight:800; font-size:1.2rem; margin-bottom:10px;"></div>
+            <p id="m-desc">Maelezo mafupi kuhusu item hii yatatokea hapa kwa ufupi kabisa.</p>
+            <a id="m-action" href="" class="modal-btn">ACTION</a>
+        </div>
+    </div>
+
     <div id="main-app">
         <div id="home-page" class="page-content active-page">
             <div class="slider-wrapper"><div class="slides" id="mainSlider"></div></div>
-            <div class="section-header"><h3>TOP SQUADS</h3><span onclick="showPage('squad-page')" style="font-size:0.7rem; color:var(--primary-blue);">VIEW ALL</span></div>
+            <div class="section-header"><h3>TOP SQUADS</h3><span onclick="showPage('squad-page')" class="view-all-btn">View All</span></div>
             <div id="home-squad-grid" class="grid-3"></div>
-            <div class="section-header"><h3>NEW GAMES</h3><span onclick="showPage('game-page')" style="font-size:0.7rem; color:var(--primary-blue);">VIEW ALL</span></div>
+            <div class="section-header"><h3>NEW GAMES</h3><span onclick="showPage('game-page')" class="view-all-btn">View All</span></div>
             <div id="home-game-grid" class="grid-3"></div>
         </div>
 
@@ -81,8 +106,16 @@
         </div>
 
         <div id="game-page" class="page-content">
-            <h2 style="margin-bottom:20px; font-family:'Bebas Neue';">ANDROID GAMES</h2>
-            <div id="full-game-grid" class="grid-full"></div>
+            <div class="section-header"><h3>Games za PC</h3><span class="view-all-btn">View All</span></div>
+            <div id="grid-pc" class="grid-custom"></div>
+            <div class="section-header"><h3>Games za Simu</h3><span class="view-all-btn">View All</span></div>
+            <div id="grid-simu" class="grid-custom"></div>
+            <div class="section-header"><h3>Bus Mods (Multiplayer) v4.3</h3><span class="view-all-btn">View All</span></div>
+            <div id="grid-bus-v43" class="grid-custom"></div>
+            <div class="section-header"><h3>Mods za Ramani Maleo</h3><span class="view-all-btn">View All</span></div>
+            <div id="grid-map-maleo" class="grid-custom"></div>
+            <div class="section-header"><h3>Mods za Bus Ets2</h3><span class="view-all-btn">View All</span></div>
+            <div id="grid-bus-ets2" class="grid-custom"></div>
         </div>
     </div>
 
@@ -114,36 +147,106 @@
             });
         }
 
+        function createGameCard(g) {
+            const iconList = g.icon.split(',');
+            let slidesHtml = iconList.map(img => `<img src="${img.trim()}">`).join('');
+            
+            return `<div class="card" onclick='openMiniPage("game", ${JSON.stringify(g)})'>
+                        <div class="card-slider-container">
+                            <div class="card-slides" data-count="${iconList.length}" data-current="0">
+                                ${slidesHtml}
+                            </div>
+                        </div>
+                        <b>${g.name}</b>
+                    </div>`;
+        }
+
+        function startCardSliders() {
+            setInterval(() => {
+                document.querySelectorAll('.card-slides').forEach(slider => {
+                    const count = parseInt(slider.getAttribute('data-count'));
+                    if (count > 1) {
+                        let current = parseInt(slider.getAttribute('data-current'));
+                        current = (current + 1) % count;
+                        slider.style.transform = `translateX(-${current * 100}%)`;
+                        slider.setAttribute('data-current', current);
+                    }
+                });
+            }, 3000);
+        }
+
+        function openMiniPage(type, data) {
+            const modal = document.getElementById('details-modal');
+            const img = document.getElementById('m-img');
+            const title = document.getElementById('m-title');
+            const price = document.getElementById('m-price');
+            const desc = document.getElementById('m-desc');
+            const action = document.getElementById('m-action');
+
+            img.src = (data.img || data.icon).split(',')[0].trim();
+            title.innerText = data.name || "Squad ID #" + data.id;
+            desc.innerText = data.desc || "Maelezo hayajapatikana kwa sasa.";
+            
+            if(type === 'game') {
+                price.innerText = "FREE DOWNLOAD";
+                action.innerText = "DOWNLOAD NOW";
+                action.href = data.link || data.apk;
+                action.style.background = "var(--primary-blue)";
+            } else {
+                price.innerText = "TSH " + data.price;
+                action.innerText = "NUNUA SASA";
+                // Ujumbe mpya hapa
+                action.href = `https://wa.me/${data.phone}?text=Nahitaji kikosi no ${data.id} Tsh ${data.price}`;
+                action.style.background = "var(--whatsapp)";
+            }
+            modal.style.display = 'flex';
+        }
+
+        function closeModal(e) { document.getElementById('details-modal').style.display = 'none'; }
+
         function loadContent() {
             db.collection("accounts").onSnapshot(snap => {
                 const fullSquad = document.getElementById('full-squad-grid');
                 const homeSquad = document.getElementById('home-squad-grid');
                 fullSquad.innerHTML = ""; homeSquad.innerHTML = "";
-                snap.forEach((doc, index) => {
+                let count = 0;
+                snap.forEach((doc) => {
                     const p = doc.data();
-                    const card = `<div class="acc-card">
-                            <img src="${p.img}" style="${p.status === 'sold' ? 'filter:grayscale(1)' : ''}">
+                    const cardHtml = `<div class="acc-card" onclick='openMiniPage("squad", ${JSON.stringify(p)})'>
+                            <img src="${p.img}">
                             <div class="acc-content">
                                 <div style="font-size:0.7rem; color:gray;">ID #${p.id}</div>
                                 <div class="acc-price">TSH ${p.price}</div>
-                                <a href="https://wa.me/${p.phone}?text=Nahitaji Kikosi #${p.id}" class="btn-buy">NUNUA SASA</a>
+                                <div class="view-all-btn" style="background:var(--whatsapp); color:white; border-radius:5px;">ANGALIA</div>
                             </div>
                         </div>`;
-                    fullSquad.innerHTML += card;
-                    if(index < 3) homeSquad.innerHTML += `<div class="card"><img src="${p.img}"><b>ID #${p.id}</b></div>`;
+                    fullSquad.innerHTML += cardHtml;
+                    if(count < 3) {
+                        homeSquad.innerHTML += `<div class="card" onclick='openMiniPage("squad", ${JSON.stringify(p)})'><img src="${p.img}" style="height:90px; object-fit:cover;"><b>ID #${p.id}</b></div>`;
+                        count++;
+                    }
                 });
             });
 
             rtdb.ref('games/').on('value', snap => {
-                const fullGame = document.getElementById('full-game-grid');
+                const grids = { pc: document.getElementById('grid-pc'), simu: document.getElementById('grid-simu'), bus43: document.getElementById('grid-bus-v43'), map: document.getElementById('grid-map-maleo'), ets2: document.getElementById('grid-bus-ets2') };
+                Object.values(grids).forEach(g => { if(g) g.innerHTML = ""; });
                 const homeGame = document.getElementById('home-game-grid');
-                fullGame.innerHTML = ""; homeGame.innerHTML = "";
-                let count = 0;
+                homeGame.innerHTML = "";
+                let homeCount = 0;
+                
                 snap.forEach(child => {
                     const g = child.val();
-                    const card = `<div class="card" onclick="window.open('${g.link || g.apk}')"><img src="${g.icon}"><b>${g.name}</b></div>`;
-                    fullGame.innerHTML += card;
-                    if(count < 3) { homeGame.innerHTML += card; count++; }
+                    const cardHtml = createGameCard(g);
+                    
+                    if(homeCount < 3) { homeGame.innerHTML += cardHtml; homeCount++; }
+                    
+                    let name = g.name.toLowerCase();
+                    if(name.includes('pc')) grids.pc.innerHTML += cardHtml;
+                    else if(name.includes('maleo') || name.includes('map')) grids.map.innerHTML += cardHtml;
+                    else if(name.includes('ets2')) grids.ets2.innerHTML += cardHtml;
+                    else if(name.includes('4.3') || name.includes('multiplayer')) grids.bus43.innerHTML += cardHtml;
+                    else grids.simu.innerHTML += cardHtml;
                 });
             });
         }
@@ -158,7 +261,11 @@
             window.scrollTo(0,0);
         }
 
-        window.onload = () => { initSlider(); loadContent(); };
+        window.onload = () => { 
+            initSlider(); 
+            loadContent(); 
+            startCardSliders(); 
+        };
     </script>
 </body>
 </html>
