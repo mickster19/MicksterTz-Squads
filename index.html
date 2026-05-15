@@ -213,4 +213,69 @@
                 const homeSquad = document.getElementById('home-squad-grid');
                 fullSquad.innerHTML = ""; homeSquad.innerHTML = "";
                 let count = 0;
-                snap.forEach((
+                snap.forEach((doc) => {
+                    const p = doc.data();
+                    const cardHtml = `<div class="acc-card" onclick='openMiniPage("squad", ${JSON.stringify(p)})'>
+                            <img src="${p.img}">
+                            <div class="acc-content">
+                                <div style="font-size:0.7rem; color:gray;">ID #${p.id}</div>
+                                <div class="acc-price">TSH ${p.price}</div>
+                                <div class="view-all-btn" style="background:var(--whatsapp); color:white; border-radius:5px;">ANGALIA</div>
+                            </div>
+                        </div>`;
+                    fullSquad.innerHTML += cardHtml;
+                    if(count < 3) {
+                        homeSquad.innerHTML += `<div class="card" onclick='openMiniPage("squad", ${JSON.stringify(p)})'><img src="${p.img}" style="height:90px; object-fit:cover;"><b>ID #${p.id}</b></div>`;
+                        count++;
+                    }
+                });
+            });
+
+            rtdb.ref('games/').on('value', snap => {
+                const grids = { 
+                    pc: document.getElementById('grid-pc'), 
+                    simu: document.getElementById('grid-simu'), 
+                    bus43: document.getElementById('grid-bus-v43'), 
+                    map: document.getElementById('grid-map-maleo'), 
+                    ets2: document.getElementById('grid-bus-ets2') 
+                };
+                Object.values(grids).forEach(g => { if(g) g.innerHTML = ""; });
+                const homeGame = document.getElementById('home-game-grid');
+                homeGame.innerHTML = "";
+                let homeCount = 0;
+                
+                snap.forEach(child => {
+                    const g = child.val();
+                    const cardHtml = createGameCard(g);
+                    
+                    if(homeCount < 3) { homeGame.innerHTML += cardHtml; homeCount++; }
+                    
+                    const cat = g.category;
+                    if(cat === "PC") grids.pc.innerHTML += cardHtml;
+                    else if(cat === "Simu") grids.simu.innerHTML += cardHtml;
+                    else if(cat === "Bus Mods") grids.bus43.innerHTML += cardHtml;
+                    else if(cat === "Ramani Maleo") grids.map.innerHTML += cardHtml;
+                    else if(cat === "ETS2") grids.ets2.innerHTML += cardHtml;
+                    else grids.simu.innerHTML += cardHtml;
+                });
+            });
+        }
+
+        function showPage(id, el) {
+            document.querySelectorAll('.page-content').forEach(p => p.classList.remove('active-page'));
+            document.getElementById(id).classList.add('active-page');
+            if(el) {
+                document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+                el.classList.add('active');
+            }
+            window.scrollTo(0,0);
+        }
+
+        window.onload = () => { 
+            initSlider(); 
+            loadContent(); 
+            startCardSliders(); 
+        };
+    </script>
+</body>
+</html>
